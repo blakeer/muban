@@ -1,0 +1,8 @@
+- name: Service | restart Tomcat | restart.......
+  service:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - "{{ tomcat }}"
+  become: true
+  tags: restart

@@ -1,0 +1,47 @@
+---
+- hosts: "{{ hosts }}"
+  serial: 1
+  gather_facts: false
+
+  vars:
+#   Code to Ansible
+    local_path: "/data/program/{{ AnsibleDir }}"
+
+#   Code to Server Backup
+    remote_path: "{{ program }}"
+
+#   Code Path(deploy)
+    site_path: "{{ www }}"
+
+    name: ROOT
+    type: war	
+
+    tomcat: "{{ webserver }}"
+
+    local_file: "{{ local_path }}/{{ name }}.{{ type }}"
+    remote_file: "{{ remote_path }}/{{ name }}"
+
+    site: "{{ url }}"
+
+  tasks:
+   - name: =========>  release
+     include: tasks/release.yml
+
+   - name: =========>  restart ######
+     include: tasks/restart.yml
+     tags:
+       - rollback
+
+   - name: pause 1s
+     pause: seconds=1
+     tags:
+       - rollback
+
+   - name: check webpage status 200
+     local_action: uri
+       url=http://{{ item }}
+       timeout=60
+     with_items:
+       - "{{ site }}"
+     tags:
+       - rollback

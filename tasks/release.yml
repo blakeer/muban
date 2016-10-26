@@ -1,0 +1,17 @@
+---
+- name: rsync  |  Ansible   >>>>>>   Service
+  synchronize: src={{ local_file }} dest={{ remote_path }} checksum=yes times=no owner=no group=no
+
+- name: rename
+  shell: cp {{ remote_file }}.{{ type }} {{ remote_file }}_{{ tag }}.{{ type }}
+
+- name: Service |  update  |   link  code  >>>>
+  file:
+    src: "{{ remote_file }}_{{ tag }}.{{ type }}"
+    dest: "{{ item }}/{{ name }}.{{ type }}"
+    force: yes
+    state: link
+  with_items:
+    - "{{ site_path }}"
+  tags:
+    - rollback
